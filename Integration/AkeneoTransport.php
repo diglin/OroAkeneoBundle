@@ -5,6 +5,7 @@ namespace Oro\Bundle\AkeneoBundle\Integration;
 use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClientInterface;
 use Gaufrette\Filesystem;
 use Knp\Bundle\GaufretteBundle\FilesystemMap;
+use Oro\Bundle\AkeneoBundle\Client\AkeneoClient;
 use Oro\Bundle\AkeneoBundle\Client\AkeneoClientFactory;
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
 use Oro\Bundle\AkeneoBundle\Form\Type\AkeneoSettingsType;
@@ -12,6 +13,7 @@ use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeFamilyIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\CategoryIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
+use Oro\Bundle\AkeneoBundle\Integration\Iterator\ReferenceDataIterator;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\MultiCurrencyBundle\Config\MultiCurrencyConfigProvider;
 use Psr\Log\LoggerInterface;
@@ -25,7 +27,7 @@ class AkeneoTransport implements AkeneoTransportInterface
     private $clientFactory;
 
     /**
-     * @var AkeneoPimEnterpriseClientInterface
+     * @var AkeneoClient
      */
     private $client;
 
@@ -292,6 +294,24 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
 
         return new AttributeIterator($this->client->getAttributeApi()->all($pageSize), $this->client, $this->logger, $attributeFilter);
+    }
+
+    /**
+     * @return \Iterator
+     */
+    public function getReferenceData()
+    {
+        $referenceDataFilter = [];
+        $referenceDataList = $this->transportEntity->getAkeneoReferenceDataList();
+        if (!empty($referenceDataList)) {
+            $referenceDataFilter = explode(';', str_replace(' ', '', $referenceDataList));
+        }
+        foreach ($referenceDataFilter as $referenceName) {
+            foreach ($this->client->get('ReferenceDataApi')->get($referenceName) as $referenceDataItem) {
+                $referenceDataItem['type'] = $referenceName;
+                yield $referenceDataItem;
+            }
+        }
     }
 
     /**

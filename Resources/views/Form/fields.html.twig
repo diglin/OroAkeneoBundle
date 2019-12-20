@@ -214,6 +214,17 @@
                     {{ form_errors(form.akeneoAttributesList) }}
                 </div>
             </div>
+
+            <div class="control-group control-group-choice">
+                <div class="control-label wrap">
+                    {{ UI.tooltip('oro.akeneo.integration.settings.akeneo_reference_data_list.tooltip'|trans, {}, 'right') }}
+                    {{ form_label(form.akeneoReferenceDataList) }}
+                </div>
+                <div class="controls {% if (form_errors(form.akeneoReferenceDataList)|length > 0) %} validation-error {% endif %}">
+                    {{ form_widget(form.akeneoReferenceDataList) }}
+                    {{ form_errors(form.akeneoReferenceDataList) }}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

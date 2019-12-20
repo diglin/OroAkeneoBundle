@@ -84,6 +84,7 @@ class ValidateConnectionController extends Controller
                     $akeneoChannelNames = $transport->getChannels();
                     $akeneoCurrencies = $transport->getMergedCurrencies();
                     $akeneoLocales = $transport->getLocales();
+                    $akeneoReferenceData = $transport->getReferenceData(1);
             }
         } catch (ExceptionInterface $e) {
             $success = false;
