@@ -3,15 +3,18 @@ parameters:
   oro_akeneo.importexport.data_converter.category.class: Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\CategoryDataConverter
   oro_akeneo.importexport.data_converter.product.class: Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\ProductDataConverter
   oro_akeneo.importexport.data_converter.product_image.class: Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\ProductImageDataConverter
+  oro_akeneo.importexport.data_converter.reference_data.class: Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\ReferenceDataDataConverter
   oro_akeneo.importexport.strategy.attribute.class: Oro\Bundle\AkeneoBundle\ImportExport\Strategy\AttributeImportStrategy
   oro_akeneo.importexport.strategy.category.class: Oro\Bundle\AkeneoBundle\ImportExport\Strategy\CategoryImportStrategy
   oro_akeneo.importexport.strategy.product.class: Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductImportStrategy
   oro_akeneo.importexport.strategy.product_image.class: Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductImageImportStrategy
   oro_akeneo.importexport.strategy.product_price.class: Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductPriceImportStrategy
+  oro_akeneo.importexport.reference_data.class_mapping: {}
   oro_akeneo.importexport.writer.attribute.class: Oro\Bundle\AkeneoBundle\ImportExport\Writer\AttributeWriter
   oro_akeneo.integration.connector.attribute.class: Oro\Bundle\AkeneoBundle\Integration\Connector\AttributeConnector
   oro_akeneo.integration.connector.product.class: Oro\Bundle\AkeneoBundle\Integration\Connector\ProductConnector
   oro_akeneo.integration.connector.category.class: Oro\Bundle\AkeneoBundle\Integration\Connector\CategoryConnector
+  oro_akeneo.integration.connector.reference_data.class: Oro\Bundle\AkeneoBundle\Integration\Connector\ReferenceDataConnector
 
   oro_akeneo.importexport.data_converter.attribute_family.class:
     Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\AttributeFamilyDataConverter
@@ -34,6 +37,15 @@ services:
     parent: oro_entity_config.importexport.normalizer.entityfield
     tags:
       - { name: oro_importexport.normalizer, priority: 100 }
+
+  oro_akeneo.importexport.normalizer.reference_data:
+    class: Oro\Bundle\AkeneoBundle\ImportExport\Serializer\Normalizer\ReferenceDataNormalizer
+    public: false
+    parent: oro_importexport.serializer.configurable_entity_normalizer
+    arguments:
+      - '%oro_akeneo.importexport.reference_data.class_mapping%'
+    tags:
+      - { name: oro_importexport.normalizer, priority: 300 }
 
   oro_akeneo.integration.connector.category:
     class: "%oro_akeneo.integration.connector.category.class%"
@@ -139,6 +151,16 @@ services:
     tags:
       - { name: oro_integration.connector, type: attribute_family, channel_type: oro_akeneo }
 
+  oro_akeneo.integration.connector.reference_data:
+    class: '%oro_akeneo.integration.connector.reference_data.class%'
+    arguments:
+      - "@oro_importexport.context_registry"
+      - "@oro_integration.logger.strategy"
+      - "@oro_integration.provider.connector_context_mediator"
+      - "@doctrine.orm.entity_manager"
+    tags:
+      - { name: oro_integration.connector, type: reference_data, channel_type: oro_akeneo }
+
   oro_akeneo.importexport.data_converter.attribute_family:
     class: '%oro_akeneo.importexport.data_converter.attribute_family.class%'
     parent: oro_locale.importexport.data_converter.localized_fallback_value_aware
@@ -147,6 +169,13 @@ services:
       - [setEntityConfigManager, ['@oro_entity_config.config_manager']]
       - [setTranslateUsingLocale, [false]]
       - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+
+  oro_akeneo.importexport.data_converter.reference_data:
+    class: '%oro_akeneo.importexport.data_converter.reference_data.class%'
+    parent: oro_locale.importexport.data_converter.localized_fallback_value_aware
+    calls:
+      - [setEntityName, ['Oro\Bundle\AkeneoBundle\Entity\ReferenceDataInterface']]
+      - [setTranslateUsingLocale, [false]]
 
   oro_akeneo.importexport.strategy.attribute_family:
     class: '%oro_akeneo.importexport.strategy.attribute_family.class%'
@@ -167,6 +196,14 @@ services:
       - [setEntityName, ['Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily']]
       - [setContextRegistry, ["@oro_importexport.context_registry"]]
       - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+
+  oro_akeneo.importexport.processor.reference_data:
+    parent: oro_integration.importexport.processor.import
+    calls:
+      - [setDataConverter, ["@oro_akeneo.importexport.data_converter.reference_data"]]
+      - [setStrategy, ["@oro_locale.importexport.strategy.localized_fallback_value_aware"]]
+      - [setEntityName, ['Oro\Bundle\AkeneoBundle\Entity\ReferenceDataInterface']]
+      - [setContextRegistry, ["@oro_importexport.context_registry"]]
 
   oro_akeneo.importexport.processor.attribute_family_status:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AttributeFamilyStatusProcessor'

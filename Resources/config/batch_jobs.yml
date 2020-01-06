@@ -58,6 +58,18 @@ connector:
             processor: oro_akeneo.importexport.processor.attribute
             writer: oro_akeneo.importexport.writer.cumulative.attribute
 
+    akeneo_reference_data_import:
+      title: "Reference data import from Akeneo"
+      type:  import
+      steps:
+        import:
+          title: import
+          class: Oro\Bundle\AkeneoBundle\ImportExport\Step\ItemStep
+          services:
+            reader: oro_akeneo.integration.connector.reference_data
+            processor: oro_akeneo.importexport.processor.reference_data
+            writer: oro_akeneo.importexport.writer.cumulative.persistent_batch_writer
+
     akeneo_product_import:
       title: "Product import from Akeneo"
       type:  import
@@ -99,3 +111,4 @@ connector:
             reader: oro_akeneo.importexport.reader.product_variant
             processor: oro_akeneo.importexport.processor.import.product_variant
             writer: oro_akeneo.importexport.writer.cumulative.persistent_batch_writer
+

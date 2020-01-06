@@ -66,4 +66,9 @@ interface AkeneoTransportInterface extends TransportInterface
      * @return \Iterator
      */
     public function getAttributes(int $pageSize);
+
+    /**
+     * @return \Iterator
+     */
+    public function getReferenceData();
 }

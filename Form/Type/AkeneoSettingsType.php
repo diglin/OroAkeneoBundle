@@ -222,6 +222,17 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                 ]
             )
             ->add(
+                'akeneoReferenceDataList',
+                TextareaType::class,
+                [
+                    'required' => false,
+                    'label'    => 'oro.akeneo.integration.settings.akeneo_reference_data_list.label',
+                    'constraints' => [
+                        new AttributeCodeConstraint(),
+                    ],
+                ]
+            )
+            ->add(
                 'rootCategory',
                 EntityType::class,
                 [

@@ -155,6 +155,13 @@ class AkeneoSettings extends Transport
     private $akeneoAttributesImageList;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="akeneo_reference_data_list", type="text", nullable=true)
+     */
+    private $akeneoReferenceDataList;
+
+    /**
      * @var boolean
      *
      * @ORM\Column(name="akeneo_merge_image_to_parent", type="boolean", options={"default":"false"})
@@ -268,6 +275,7 @@ class AkeneoSettings extends Transport
                     'akeneoAttributesList'       => $this->getAkeneoAttributesList(),
                     'alternativeIdentifier'      => $this->getAlternativeIdentifier(),
                     'akeneoAttributesImageList'  => $this->getAkeneoAttributesImageList(),
+                    'akeneoReferenceDataList'    => $this->getAkeneoReferenceDataList(),
                     'akeneoMergeImageToParent'   => $this->isAkeneoMergeImageToParent(),
                 ]
             );
@@ -564,6 +572,26 @@ class AkeneoSettings extends Transport
     public function getAkeneoAttributesImageList(): ?string
     {
         return $this->akeneoAttributesImageList;
+    }
+
+    /**
+     * @param string $referenceDataList
+     *
+     * @return $this
+     */
+    public function setAkeneoReferenceDataList($referenceDataList)
+    {
+        $this->akeneoReferenceDataList = $referenceDataList;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAkeneoReferenceDataList(): ?string
+    {
+        return $this->akeneoReferenceDataList;
     }
 
     /**
