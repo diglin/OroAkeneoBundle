@@ -12,12 +12,12 @@ class AkeneoClientBuilder extends AkeneoPimEnterpriseClientBuilder
     /**
      * @var ApiAwareInterface[]
      */
-    protected $apiRegistry;
+    protected $apiRegistry = [];
 
     /**
      * @param ApiAwareInterface ...$apis
      */
-    public function __construct(ApiAwareInterface ...$apis)
+    public function __construct(?ApiAwareInterface ...$apis)
     {
         foreach ($apis as $api) {
             $this->addApi($api);
