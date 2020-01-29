@@ -106,3 +106,8 @@ services:
 
   oro_akeneo.api.reference_data:
     class: Oro\Bundle\AkeneoBundle\Client\Api\ReferenceDataApi
+
+  oro_akeneo.config_manager:
+    class: 'Oro\Bundle\AkeneoBundle\Config\ConfigManager'
+    decorates: oro_entity_config.config_manager
+    parent: oro_entity_config.config_manager

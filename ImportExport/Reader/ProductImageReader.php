@@ -9,6 +9,8 @@ use Oro\Bundle\IntegrationBundle\Entity\Channel;
 
 class ProductImageReader extends IteratorBasedReader
 {
+    use AkeneoTransportTrait;
+
     /** @var DoctrineHelper */
     private $doctrineHelper;
 
@@ -38,10 +40,13 @@ class ProductImageReader extends IteratorBasedReader
                 ->getExecutionContext()
                 ->get('items') ?? [];
 
+        if (!empty($items)) {
+            $this->processImagesDownload($items, $context);
+        }
+
         $images = [];
         foreach ($items as &$item) {
             foreach ($item['values'] as $code => &$values) {
-
                 if (empty($this->attributesImageFilter) || in_array($code, $this->attributesImageFilter)) {
                     foreach ($values as $value) {
                         if ('pim_catalog_image' !== $value['type'] || empty($value['data'])) {
@@ -84,7 +89,6 @@ class ProductImageReader extends IteratorBasedReader
     private function getTransport(): ?AkeneoSettings
     {
         if (!$this->transport) {
-
             if (!$this->getContext() || false === $this->getContext()->hasOption('channel')) {
                 return null;
             }
@@ -100,5 +104,20 @@ class ProductImageReader extends IteratorBasedReader
         }
 
         return $this->transport;
+    }
+
+    protected function processImagesDownload(array $items, ContextInterface $context)
+    {
+        foreach ($items as $item) {
+            foreach ($item['values'] as $values) {
+                foreach ($values as $value) {
+                    if ('pim_catalog_image' !== $value['type'] || empty($value['data'])) {
+                        continue;
+                    }
+
+                    $this->getAkeneoTransport($context)->downloadAndSaveMediaFile('product_images', $value['data']);
+                }
+            }
+        }
     }
 }

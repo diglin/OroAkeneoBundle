@@ -164,7 +164,7 @@ class AkeneoSettings extends Transport
     /**
      * @var boolean
      *
-     * @ORM\Column(name="akeneo_merge_image_to_parent", type="boolean", options={"default":"false"})
+     * @ORM\Column(name="akeneo_merge_image_to_parent", type="boolean", options={"default"="false"})
      */
     private $akeneoMergeImageToParent = false;
 
@@ -206,8 +206,6 @@ class AkeneoSettings extends Transport
     }
 
     /**
-     * @param AkeneoLocale $akeneoLocale
-     *
      * @return $this
      */
     public function addAkeneoLocale(AkeneoLocale $akeneoLocale)
@@ -219,8 +217,6 @@ class AkeneoSettings extends Transport
     }
 
     /**
-     * @param AkeneoLocale $akeneoLocale
-     *
      * @return $this
      */
     public function removeAkeneoLocale(AkeneoLocale $akeneoLocale)
@@ -337,8 +333,6 @@ class AkeneoSettings extends Transport
     /**
      * Sets akeneoChannels.
      *
-     * @param array|null $akeneoChannels
-     *
      * @return self
      */
     public function setAkeneoChannels(array $akeneoChannels = null)
@@ -420,9 +414,6 @@ class AkeneoSettings extends Transport
         return $this->token;
     }
 
-    /**
-     * @param string $token
-     */
     public function setToken(string $token): void
     {
         $this->token = $token;
@@ -436,9 +427,6 @@ class AkeneoSettings extends Transport
         return $this->refreshToken;
     }
 
-    /**
-     * @param string $refreshToken
-     */
     public function setRefreshToken(string $refreshToken): void
     {
         $this->refreshToken = $refreshToken;
@@ -479,8 +467,6 @@ class AkeneoSettings extends Transport
     /**
      * Sets akeneoCurrencies.
      *
-     * @param array|null $akeneoCurrencies
-     *
      * @return self
      */
     public function setAkeneoCurrencies(array $akeneoCurrencies = null)
@@ -502,8 +488,6 @@ class AkeneoSettings extends Transport
 
     /**
      * Sets akeneoActiveCurrencies.
-     *
-     * @param array|null $akeneoActiveCurrencies
      *
      * @return self
      */
@@ -535,8 +519,6 @@ class AkeneoSettings extends Transport
     /**
      * Sets akeneoLocalesList.
      *
-     * @param array|null $akeneoLocalesList
-     *
      * @return self
      */
     public function setAkeneoLocalesList(array $akeneoLocalesList = null)
@@ -546,29 +528,6 @@ class AkeneoSettings extends Transport
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getAkeneoAttributesList(): ?string
-    {
-        return $this->akeneoAttributesList;
-    }
-
-    /**
-     * @param string $attributeList
-     *
-     * @return $this
-     */
-    public function setAkeneoAttributesList($attributeList)
-    {
-        $this->akeneoAttributesList = $attributeList;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getAkeneoAttributesImageList(): ?string
     {
         return $this->akeneoAttributesImageList;
@@ -596,8 +555,6 @@ class AkeneoSettings extends Transport
 
     /**
      * @param string $akeneoAttributesImageList
-     *
-     * @return self
      */
     public function setAkeneoAttributesImageList(string $akeneoAttributesImageList = null): self
     {
@@ -615,8 +572,6 @@ class AkeneoSettings extends Transport
     }
 
     /**
-     * @param DateTime $tokenExpiryDateTime
-     *
      * @return AkeneoSettings
      */
     public function setTokenExpiryDateTime(DateTime $tokenExpiryDateTime): self
@@ -697,13 +652,26 @@ class AkeneoSettings extends Transport
     }
 
     /**
-     * @param PriceList $priceList
-     *
      * @return AkeneoSettings
      */
     public function setPriceList(PriceList $priceList): self
     {
         $this->priceList = $priceList;
+
+        return $this;
+    }
+
+    public function getAkeneoAttributesList(): ?string
+    {
+        return $this->akeneoAttributesList;
+    }
+
+    /**
+     * @param string $attributeList
+     */
+    public function setAkeneoAttributesList(string $attributeList = null): self
+    {
+        $this->akeneoAttributesList = $attributeList;
 
         return $this;
     }
@@ -717,8 +685,6 @@ class AkeneoSettings extends Transport
     }
 
     /**
-     * @param bool $akeneoMergeImageToParent
-     *
      * @return $this
      */
     public function setAkeneoMergeImageToParent(bool $akeneoMergeImageToParent)
@@ -728,11 +694,6 @@ class AkeneoSettings extends Transport
         return $this;
     }
 
-    /**
-     * @param string $alternativeIdentifier
-     *
-     * @return $this
-     */
     public function setAlternativeIdentifier(string $alternativeIdentifier = null)
     {
         $this->alternativeIdentifier = $alternativeIdentifier;

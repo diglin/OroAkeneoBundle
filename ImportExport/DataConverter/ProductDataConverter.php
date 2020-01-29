@@ -4,7 +4,6 @@ namespace Oro\Bundle\AkeneoBundle\ImportExport\DataConverter;
 
 use Doctrine\Common\Util\Inflector;
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
-use Oro\Bundle\AkeneoBundle\ImportExport\Processor\AttributeFamilyImportProcessor;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeFamilyCodeGenerator;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeTypeConverter;
 use Oro\Bundle\AkeneoBundle\Tools\Generator;
@@ -118,8 +117,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     /**
      * Set family variant for configurable products.
-     *
-     * @param array $importedRecord
      */
     private function setFamilyVariant(array &$importedRecord)
     {
@@ -154,8 +151,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     /**
      * Convert product values.
-     *
-     * @param array $importedRecord
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -227,10 +222,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     /**
      * Gets field by attribute code.
-     *
-     * @param string $attributeCode
-     * @param array $fieldMapping
-     * @return array|null
      */
     private function getField(string $attributeCode, array $fieldMapping): ?array
     {
@@ -289,13 +280,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
     }
 
     /**
-     * @param array $value
-     * @param string $fallbackField
-     * @param Localization $defaultLocalization
-     * @param AkeneoSettings $transport
-     *
-     * @return array
-     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function processRelationType(
@@ -355,11 +339,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         return $result;
     }
 
-    /**
-     * @param array $value
-     *
-     * @return array
-     */
     private function processEnumType(array $value): array
     {
         $item = array_shift($value);
@@ -369,11 +348,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         ];
     }
 
-    /**
-     * @param array $value
-     *
-     * @return array
-     */
     private function processMultiEnumType(array $value): array
     {
         $ids = [];
@@ -394,20 +368,12 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     /**
      * Prepares enum id like saved already attribute code.
-     *
-     * @param string|null $id
-     * @return string|null
      */
     private function prepareEnumId(?string $id): ?string
     {
-        return $id !== null ? Generator::generateCode($id) : null;
+        return $id !== null ? Generator::generateLabel($id) : null;
     }
 
-    /**
-     * @param array $value
-     *
-     * @return string
-     */
     private function processFileType(array $value): string
     {
         $item = array_shift($value);
@@ -415,19 +381,12 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         return $this->getAttachmentPath($item['data']);
     }
 
-    /**
-     * @param string $code
-     *
-     * @return string
-     */
     protected function getAttachmentPath(string $code): string
     {
         return sprintf('%s/%s', rtrim($this->attachmentsDir, '/'), basename($code));
     }
 
     /**
-     * @param array $value
-     *
      * @return mixed
      */
     private function processBasicType(array $value)
@@ -443,8 +402,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     /**
      * Sets slugs generated from names.
-     *
-     * @param array $importedRecord
      */
     private function setSlugs(array &$importedRecord)
     {
@@ -456,12 +413,10 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     /**
      * Set category.
-     *
-     * @param array $importedRecord
      */
     private function setCategory(array &$importedRecord)
     {
-        $categories = (array)$importedRecord['categories'] ?? [];
+        $categories = array_filter((array)$importedRecord['categories'] ?? []);
         unset($importedRecord['categories']);
         if (!$categories) {
             return;
@@ -471,33 +426,21 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         $importedRecord['category:channel:id'] = $this->context->getOption('channel');
     }
 
-    /**
-     * @param ConfigManager $entityConfigManager
-     */
     public function setEntityConfigManager(ConfigManager $entityConfigManager): void
     {
         $this->entityConfigManager = $entityConfigManager;
     }
 
-    /**
-     * @param SlugGenerator $slugGenerator
-     */
     public function setSlugGenerator(SlugGenerator $slugGenerator)
     {
         $this->slugGenerator = $slugGenerator;
     }
 
-    /**
-     * @param DateTimeFormatter $dateTimeFormatter
-     */
     public function setDateTimeFormatter(DateTimeFormatter $dateTimeFormatter): void
     {
         $this->dateTimeFormatter = $dateTimeFormatter;
     }
 
-    /**
-     * @param string $attachmentsDir
-     */
     public function setAttachmentsDir(string $attachmentsDir): void
     {
         $this->attachmentsDir = $attachmentsDir;
@@ -524,12 +467,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         throw new \Exception('Normalization is not implemented!');
     }
 
-    /**
-     * @param string $codePrefix
-     *
-     * @return $this
-     */
-    public function setCodePrefix(string $codePrefix)
+    public function setCodePrefix(string $codePrefix): void
     {
         $this->codePrefix = $codePrefix;
     }

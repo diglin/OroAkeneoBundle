@@ -2,6 +2,7 @@
 
 namespace Oro\Bundle\AkeneoBundle\Integration;
 
+use Akeneo\Pim\ApiClient\Exception\NotFoundHttpException;
 use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClientInterface;
 use Gaufrette\Filesystem;
 use Knp\Bundle\GaufretteBundle\FilesystemMap;
@@ -37,7 +38,7 @@ class AkeneoTransport implements AkeneoTransportInterface
     private $configProvider;
 
     /**
-     * @var Transport
+     * @var AkeneoSettings
      */
     private $transportEntity;
 
@@ -56,13 +57,6 @@ class AkeneoTransport implements AkeneoTransportInterface
      */
     private $logger;
 
-    /**
-     * @param AkeneoClientFactory $clientFactory
-     * @param MultiCurrencyConfigProvider $configProvider
-     * @param AkeneoSearchBuilder $akeneoSearchBuilder
-     * @param FilesystemMap $filesystemMap
-     * @param LoggerInterface $logger
-     */
     public function __construct(
         AkeneoClientFactory $clientFactory,
         MultiCurrencyConfigProvider $configProvider,
@@ -124,9 +118,6 @@ class AkeneoTransport implements AkeneoTransportInterface
         return $currencies;
     }
 
-    /**
-     * @param MultiCurrencyConfigProvider $configProvider
-     */
     public function setConfigProvider(MultiCurrencyConfigProvider $configProvider)
     {
         $this->configProvider = $configProvider;
@@ -165,8 +156,6 @@ class AkeneoTransport implements AkeneoTransportInterface
     }
 
     /**
-     * @param int $pageSize
-     *
      * @return \Iterator
      */
     public function getCategories(int $pageSize)
@@ -214,8 +203,6 @@ class AkeneoTransport implements AkeneoTransportInterface
     /**
      * {@inheritdoc}
      *
-     * @param int $pageSize
-     *
      * @return \Iterator
      */
     public function getProducts(int $pageSize)
@@ -229,15 +216,12 @@ class AkeneoTransport implements AkeneoTransportInterface
             ),
             $this->client,
             $this->logger,
-            $this->filesystem,
             $this->getAttributes($pageSize),
             $this->getAlternativeIdentifier()
         );
     }
 
     /**
-     * @param int $pageSize
-     *
      * @return \Iterator
      */
     public function getProductModels(int $pageSize)
@@ -251,7 +235,6 @@ class AkeneoTransport implements AkeneoTransportInterface
             ),
             $this->client,
             $this->logger,
-            $this->filesystem,
             $this->getAttributes($pageSize)
         );
     }
@@ -281,8 +264,6 @@ class AkeneoTransport implements AkeneoTransportInterface
     }
 
     /**
-     * @param int $pageSize
-     *
      * @return AttributeIterator
      */
     public function getAttributes(int $pageSize)
@@ -290,7 +271,10 @@ class AkeneoTransport implements AkeneoTransportInterface
         $attributeFilter = [];
         $attrList = $this->transportEntity->getAkeneoAttributesList();
         if (!empty($attrList)) {
-            $attributeFilter = explode(';', str_replace(' ', '', $attrList));
+            $attributeFilter = array_merge(
+                explode(';', $attrList) ?? [],
+                explode(';', $this->transportEntity->getAkeneoAttributesImageList()) ?? []
+            );
         }
 
         return new AttributeIterator($this->client->getAttributeApi()->all($pageSize), $this->client, $this->logger, $attributeFilter);
@@ -320,5 +304,32 @@ class AkeneoTransport implements AkeneoTransportInterface
     private function getAlternativeIdentifier(): ?string
     {
         return $this->transportEntity->getAlternativeIdentifier();
+    }
+
+    public function downloadAndSaveMediaFile($type, $code)
+    {
+        $path = $this->getFilePath($type, $code);
+
+        if ($this->filesystem->has($path)) {
+            return;
+        }
+
+        try {
+            $content = $this->client->getProductMediaFileApi()->download($code)->getContents();
+        } catch (NotFoundHttpException $e) {
+            $this->logger->critical(
+                'Error on downloading media file.',
+                ['message' => $e->getMessage(), 'exception' => $e]
+            );
+
+            return;
+        }
+
+        $this->filesystem->write($path, $content, true);
+    }
+
+    protected function getFilePath(string $type, string $code): string
+    {
+        return sprintf('%s/%s', $type, basename($code));
     }
 }
