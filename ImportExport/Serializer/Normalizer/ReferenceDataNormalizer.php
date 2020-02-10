@@ -19,6 +19,11 @@ class ReferenceDataNormalizer extends ConfigurableEntityNormalizer
         $this->referenceDataClasses = $referenceDataClasses;
     }
 
+    public function supportsNormalization($data, $format = null, array $context = [])
+    {
+        return false;
+    }
+
     /**
      * {@inheritdoc}
      */
