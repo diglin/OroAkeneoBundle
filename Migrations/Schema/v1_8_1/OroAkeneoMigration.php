@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\AkeneoBundle\Migrations\Schema\v1_7;
+namespace Oro\Bundle\AkeneoBundle\Migrations\Schema\v1_8_1;
 
 use Doctrine\DBAL\Schema\Schema;
 use Oro\Bundle\MigrationBundle\Migration\Migration;
@@ -17,7 +17,7 @@ class OroAkeneoMigration implements Migration
      */
     public function getMigrationVersion()
     {
-        return 'v1_7';
+        return 'v1_8_1';
     }
 
     /**
@@ -35,8 +35,13 @@ class OroAkeneoMigration implements Migration
     protected function updateOroIntegrationTransportTable(Schema $schema)
     {
         $table = $schema->getTable('oro_integration_transport');
-        $table->addColumn('akeneo_alternative_identifier', 'string', ['notnull' => false,'length' => 255]);
-        $table->addColumn('akeneo_product_unit_attribute', 'string', ['notnull' => false, 'length' => 255]);
-        $table->addColumn('akeneo_unit_precision_attr', 'string', ['notnull' => false, 'length' => 255]);
+
+        if (!$table->hasColumn('akeneo_product_unit_attribute')) {
+            $table->addColumn('akeneo_product_unit_attribute', 'string', ['notnull' => false, 'length' => 255]);
+        }
+
+        if (!$table->hasColumn('akeneo_unit_precision_attr')) {
+            $table->addColumn('akeneo_unit_precision_attr', 'string', ['notnull' => false, 'length' => 255]);
+        }
     }
 }
