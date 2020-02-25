@@ -41,7 +41,6 @@ services:
   oro_akeneo.importexport.normalizer.reference_data:
     class: Oro\Bundle\AkeneoBundle\ImportExport\Serializer\Normalizer\ReferenceDataNormalizer
     public: false
-    parent: oro_importexport.serializer.configurable_entity_normalizer
     arguments:
       - '%oro_akeneo.importexport.reference_data.class_mapping%'
     tags:

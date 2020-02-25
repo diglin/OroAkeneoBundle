@@ -3,25 +3,22 @@
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Serializer\Normalizer;
 
 use Oro\Bundle\AkeneoBundle\Integration\AkeneoChannel;
-use Oro\Bundle\EntityBundle\Helper\FieldHelper;
-use Oro\Bundle\ImportExportBundle\Serializer\Normalizer\ConfigurableEntityNormalizer;
+use Oro\Bundle\ImportExportBundle\Serializer\Normalizer\DenormalizerInterface;
+use Symfony\Component\Serializer\SerializerAwareInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
-class ReferenceDataNormalizer extends ConfigurableEntityNormalizer
+class ReferenceDataNormalizer implements DenormalizerInterface, SerializerAwareInterface
 {
     /** @var array */
     protected $referenceDataClasses = [];
+    /**
+     * @var \Symfony\Component\Serializer\SerializerInterface
+     */
+    private $serializer;
 
-    public function __construct(
-        FieldHelper $fieldHelper,
-        array $referenceDataClasses
-    ) {
-        parent::__construct($fieldHelper);
-        $this->referenceDataClasses = $referenceDataClasses;
-    }
-
-    public function supportsNormalization($data, $format = null, array $context = [])
+    public function __construct(array $referenceDataClasses)
     {
-        return false;
+        $this->referenceDataClasses = $referenceDataClasses;
     }
 
     /**
@@ -29,12 +26,10 @@ class ReferenceDataNormalizer extends ConfigurableEntityNormalizer
      */
     public function supportsDenormalization($data, $type, $format = null, array $context = [])
     {
-        $return = is_a($type, 'Oro\Bundle\AkeneoBundle\Entity\ReferenceDataInterface', true) &&
-            true === isset($data['type']) &&
-            true === isset($this->referenceDataClasses[$data['type']]) &&
-            true === isset($context['channelType']) &&
-            AkeneoChannel::TYPE === $context['channelType'];
-        return $return;
+        return ($type == 'Oro\Bundle\AkeneoBundle\Entity\ReferenceDataInterface')
+            && isset($data['type'])
+            && isset($this->referenceDataClasses[$data['type']])
+            && isset($context['channelType']) && AkeneoChannel::TYPE === $context['channelType'];
     }
 
     /**
@@ -42,12 +37,22 @@ class ReferenceDataNormalizer extends ConfigurableEntityNormalizer
      * @param string $class
      * @param null $format
      * @param array $context
+     *
      * @return mixed|object
      */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         $class = $this->referenceDataClasses[$data['type']] ?? $class;
         $context['entityName'] = $class;
-        return parent::denormalize($data, $class, $format, $context);
+
+        return $this->serializer->denormalize($data, $class, $format, $context);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSerializer(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
     }
 }
