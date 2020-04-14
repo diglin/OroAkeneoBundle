@@ -235,6 +235,7 @@ services:
       - [setAttachmentsDir, ["%kernel.project_dir%/var/import_export/attachments/"]]
       - [setProductUnitDiscovery, ["@oro_akeneo.product_unit.discovery"]]
       - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [setLogger, ["@oro_integration.logger.strategy"]]
 
   oro_akeneo.importexport.strategy.product:
     class: '%oro_akeneo.importexport.strategy.product.class%'

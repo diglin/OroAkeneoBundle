@@ -4,6 +4,7 @@ namespace Oro\Bundle\AkeneoBundle\ImportExport\DataConverter;
 
 use Doctrine\Common\Util\Inflector;
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
+use Oro\Bundle\AkeneoBundle\Exceptions\IgnoreProductUnitChangesException;
 use Oro\Bundle\AkeneoBundle\ProductUnit\ProductUnitDiscoveryInterface;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeFamilyCodeGenerator;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeTypeConverter;
@@ -20,15 +21,17 @@ use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\LocaleBundle\Formatter\DateTimeFormatter;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\ImportExport\DataConverter\ProductDataConverter as BaseProductDataConverter;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Converts data for imported row.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
-class ProductDataConverter extends BaseProductDataConverter implements ContextAwareInterface, ClosableInterface
+class ProductDataConverter extends BaseProductDataConverter implements ContextAwareInterface, ClosableInterface, LoggerAwareInterface
 {
-    use AkeneoIntegrationTrait;
+    use AkeneoIntegrationTrait, LoggerAwareTrait;
 
     /**
      * @var ContextInterface
@@ -85,7 +88,13 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         unset($importedRecord['_links']);
 
         $importedRecord['sku'] = $importedRecord['identifier'] ?? $importedRecord['code'];
-        $importedRecord['primaryUnitPrecision'] = $this->productUnitDiscovery->discover($this->getTransport(), $importedRecord);
+
+        try {
+            $importedRecord['primaryUnitPrecision'] = $this->productUnitDiscovery->discover($this->getTransport(), $importedRecord);
+        } catch (IgnoreProductUnitChangesException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
 
         if (!empty($importedRecord['family'])) {
             $importedRecord['attributeFamily'] = [
