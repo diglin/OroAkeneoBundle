@@ -14,14 +14,17 @@ use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeFamilyIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\CategoryIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
-use Oro\Bundle\AkeneoBundle\Integration\Iterator\ReferenceDataIterator;
+use Oro\Bundle\AkeneoBundle\ProductUnit\ProductUnitDiscoveryInterface;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\MultiCurrencyBundle\Config\MultiCurrencyConfigProvider;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Intl\Intl;
 
 class AkeneoTransport implements AkeneoTransportInterface
 {
+    use LoggerAwareTrait;
+
     const PAGE_SIZE = 100;
 
     /**
@@ -63,11 +66,6 @@ class AkeneoTransport implements AkeneoTransportInterface
      * @var Filesystem
      */
     private $filesystem;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     public function __construct(
         AkeneoClientFactory $clientFactory,
